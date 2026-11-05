@@ -1,0 +1,41 @@
+name: Construir Alexa APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar proyecto
+        uses: actions/checkout@v4
+
+      - name: Preparar Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Extraer proyecto
+        run: |
+          unzip -o Alexa_Android_proyecto_para_compilar.zip -d proyecto
+
+      - name: Instalar Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Compilar Alexa
+        run: |
+          cd proyecto
+          gradle assembleDebug
+
+      - name: Guardar instalador APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Alexa-APK
+          path: proyecto/app/build/outputs/apk/debug/app-debug.apk
